@@ -32,6 +32,7 @@ def database_initialization():
         PRIMARY KEY (user_id, course_id)
     )
     """)
+
 def new_user():
     name = input("Введите имя пользователя: ")
     email_number = input("Введите email или телефон: ")
@@ -100,6 +101,7 @@ connection = mysql.connector.connect(
     user='root',
     password='sasyn2008')
 cursor = connection.cursor()
+database_initialization()
 
 while True:
     print("1) Добавить пользователя")
