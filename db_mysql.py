@@ -1,43 +1,37 @@
 import mysql.connector
 
-connection = mysql.connector.connect(
-    host='localhost',
-    user='root',
-    password='sasyn2008')
+def database_initialization():
+    cursor.execute("CREATE DATABASE IF NOT EXISTS education")
+    cursor.execute("USE education")
 
-cursor = connection.cursor()
-cursor.execute("CREATE DATABASE IF NOT EXISTS education")
-cursor.execute("USE education")
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        user_id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        email_number VARCHAR(100) NOT NULL,
+        tg_id INT(100) NOT NULL
+    )
+    """)
 
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS users (
-    user_id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    email_number VARCHAR(100) NOT NULL,
-    tg_id INT(100) NOT NULL
-)
-""")
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS courses (
+        course_id INT AUTO_INCREMENT PRIMARY KEY,
+        course_name VARCHAR(100) NOT NULL,
+        start_date DATE NOT NULL,
+        description_short VARCHAR(100) NOT NULL,
+        description_long VARCHAR(100) NOT NULL
+    )
+    """)
 
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS courses (
-    course_id INT AUTO_INCREMENT PRIMARY KEY,
-    course_name VARCHAR(100) NOT NULL,
-    start_date DATE NOT NULL,
-    description_short VARCHAR(100) NOT NULL,
-    description_long VARCHAR(100) NOT NULL
-)
-""")
-
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS user_courses (
-    user_id INT,
-    course_id INT,
-    FOREIGN KEY (user_id) REFERENCES users(user_id),
-    FOREIGN KEY (course_id) REFERENCES courses(course_id),
-    PRIMARY KEY (user_id, course_id)
-)
-""")
-
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS user_courses (
+        user_id INT,
+        course_id INT,
+        FOREIGN KEY (user_id) REFERENCES users(user_id),
+        FOREIGN KEY (course_id) REFERENCES courses(course_id),
+        PRIMARY KEY (user_id, course_id)
+    )
+    """)
 def new_user():
     name = input("Введите имя пользователя: ")
     email_number = input("Введите email или телефон: ")
@@ -100,6 +94,12 @@ def print_user_plus_curs():
             print(f"ID пользователя: {user_id}, Имя: {name}")
             current_user = user_id
         print(f"  Курс: {course_name}")
+
+connection = mysql.connector.connect(
+    host='localhost',
+    user='root',
+    password='sasyn2008')
+cursor = connection.cursor()
 
 while True:
     print("1) Добавить пользователя")
