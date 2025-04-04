@@ -4,12 +4,13 @@ import telebot
 from telebot import types
 import sqlite3
 import db_mysql
+import config
 
-bot = telebot.TeleBot('7959873800:AAH2pgOXXef0g6cm2fXLz54c38KZ-3TXb7E')
+bot = telebot.TeleBot(config.api)
 conn = sqlite3.connect('users.db')
 cursor = conn.cursor()
 gusini = db_mysql.database_initialization()
-admin_list = ['hylo_x2']
+admin_list = config.admin_list
 
 
 @bot.message_handler(commands=['start'])
