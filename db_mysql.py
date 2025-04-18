@@ -33,10 +33,7 @@ def database_initialization():
     )
     """)
 
-def new_user():
-    name = input("Введите имя пользователя: ")
-    email_number = input("Введите email или телефон: ")
-    tg_id = input("Введите Telegramm_id: ")
+def new_user(name, email_number, tg_id):
     cursor.execute("INSERT INTO users (name, email_number, tg_id) VALUES (%s, %s, %s)", (name, email_number, tg_id))
     connection.commit()
 
@@ -72,7 +69,7 @@ def user_plus_curs():
 def print_user():
     cursor.execute("SELECT * FROM users")
     for (user_id, name, email_number,tg_id) in cursor.fetchall():
-        print(f"ID: {user_id}, Имя: {name}, Email/Телефон: {email_number},Telegramm_id: {tg_id}")
+        print(f"ID: {user_id}, Имя: {name}, Email/Телефон: {email_number},tg_id: {tg_id}")
 
 def print_curs():
     cursor.execute("SELECT * FROM courses")

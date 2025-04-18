@@ -11,12 +11,13 @@ conn = sqlite3.connect('users.db')
 cursor = conn.cursor()
 gusini = db_mysql.database_initialization()
 admin_list = config.admin_list
+an = message.from_user.username
 
 
 @bot.message_handler(commands=['start'])
 def start_command(message):
     a = f'@{message.from_user.username} здравствуйте!'
-    if a in admin_list:
+    if an in admin_list:
         markup = types.ReplyKeyboardMarkup()
         btn3 = types.KeyboardButton('Массовая рассылка')
         btn4 = types.KeyboardButton('Вывести всех пользователей')
@@ -25,7 +26,7 @@ def start_command(message):
         bot.send_message(message.chat.id, 'Вас приветствует ITeam помощник!', reply_markup=markup)
         admin_func()
 
-    elif a not in admin_list:
+    elif an not in admin_list:
         markup = types.ReplyKeyboardMarkup()
         btn1 = types.KeyboardButton('Зарегистрироваться')
         btn2 = types.KeyboardButton('Войти')
@@ -44,6 +45,7 @@ def admin_func(message):
         users = str(users)
         bot.send_message(message.chat.id, text=users)
 
+
 @bot.message_handler(content_types=['text'])
 def func(message):
     if message.text == 'Зарегистрироваться':
@@ -51,29 +53,89 @@ def func(message):
         bot.send_message(message.chat.id, 'Сейчас тебя зарегистрируем! Введи своё имя:')
         bot.register_next_step_handler(message, user_name)
     elif message.text == 'Посмотреть своё расписание':
-        bot.send_message(message.chat.id, text="Всё ок")
-    elif (message.text == 'Записаться на курс'):
-        bot.send_message(message.chat.id, text="Всё ок")
-    elif (message.text == 'Информация по курсам'):
-        bot.send_message(message.chat.id, text="Всё ок")
+        cursor.execute("""
+                SELECT users.user_id, users.name, courses.course_name 
+                FROM user_courses
+                JOIN users ON user_courses.user_id = users.user_id
+                JOIN courses ON user_courses.course_id = courses.course_id
+                ORDER BY users.user_id  
+            """)
+        current_user = None
 
-    elif (message.text == 'Войти'):
+        for (user_id, name, course_name) in cursor.fetchall():
+            if current_user != user_id:
+                print(f"ID пользователя: {user_id}, Имя: {name}")
+                current_user = user_id
+            bot.send_message(message.chat.id, text=f"  Курс: {course_name}")
+
+    elif message.text == 'Записаться на курс':
+        user_id = input("Введите идентификатор пользователя: ")
+        cursor.execute("SELECT user_id FROM users WHERE user_id = %s", (user_id,))
+        if not cursor.fetchone():
+            print("Пользователь с таким ID не найден.")
+            return
+
+        course_id = input("Введите идентификатор курса: ")
+        cursor.execute("SELECT course_id FROM courses WHERE course_id = %s", (course_id,))
+        if not cursor.fetchone():
+            bot.send_message(message.chat.id, text="Курс с таким ID не найден.")
+            return
+        cursor.execute("SELECT * FROM user_courses WHERE user_id = %s AND course_id = %s", (user_id, course_id))
+        if cursor.fetchone():
+            print("Пользователь уже записан на этот курс.")
+            return
+        cursor.execute("INSERT INTO user_courses (user_id, course_id) VALUES (%s, %s)", (user_id, course_id))
+        connection.commit()
+        bot.send_message(message.chat.id, text="Пользователь успешно записан на курс.")
+    elif message.text == 'Информация по курсам':
+        cursor.execute("SELECT * FROM courses")
+        for (course_id, course_name, start_date, description_short, description_long) in cursor.fetchall():
+            bot.send_message(messagw.chat.id, text=f"ID: {course_id}, Название: {course_name}, Дата начала: {start_date}\nКраткое описание: {description_short},\nПолное описание: {description_long}")
+
+    elif message.text == 'Войти':
         bot.send_message(message.chat.id, 'Инициализация протокола входа. Введи своё имя:')
         bot.register_next_step_handler(message, user_name)
     elif message.text == 'Посмотреть своё расписание':
-        bot.send_message(message.chat.id, text="Всё ок")
-    elif (message.text == 'Записаться на курс'):
-        bot.send_message(message.chat.id, text="Всё ок")
-    elif (message.text == 'Информация по курсам'):
-        bot.send_message(message.chat.id, text="Всё ок")
-    elif (message.text == 'Посмотреть своё расписание'):
-        bot.send_message(message.chat.id, text="Всё ок")
+        cursor.execute("""
+                        SELECT users.user_id, users.name, courses.course_name 
+                        FROM user_courses
+                        JOIN users ON user_courses.user_id = users.user_id
+                        JOIN courses ON user_courses.course_id = courses.course_id
+                        ORDER BY users.user_id  
+                    """)
+        current_user = None
 
-    elif (message.text == 'Записаться на курс'):
-        bot.send_message(message.chat.id, text="Всё ок")
+        for (user_id, name, course_name) in cursor.fetchall():
+            if current_user != user_id:
+                print(f"ID пользователя: {user_id}, Имя: {name}")
+                current_user = user_id
+            bot.send_message(message.chat.id, text=f"  Курс: {course_name}")
+
+    elif message.text == 'Записаться на курс':
+        user_id = input("Введите идентификатор пользователя: ")
+        cursor.execute("SELECT user_id FROM users WHERE user_id = %s", (user_id,))
+        if not cursor.fetchone():
+            print("Пользователь с таким ID не найден.")
+            return
+
+        course_id = input("Введите идентификатор курса: ")
+        cursor.execute("SELECT course_id FROM courses WHERE course_id = %s", (course_id,))
+        if not cursor.fetchone():
+            bot.send_message(message.chat.id, text="Курс с таким ID не найден.")
+            return
+        cursor.execute("SELECT * FROM user_courses WHERE user_id = %s AND course_id = %s", (user_id, course_id))
+        if cursor.fetchone():
+            print("Пользователь уже записан на этот курс.")
+            return
+        cursor.execute("INSERT INTO user_courses (user_id, course_id) VALUES (%s, %s)", (user_id, course_id))
+        connection.commit()
+        bot.send_message(message.chat.id, text="Пользователь успешно записан на курс.")
 
     elif message.text == 'Информация по курсам':
-        bot.send_message(message.chat.id, text="Всё ок")
+        cursor.execute("SELECT * FROM courses")
+        for (course_id, course_name, start_date, description_short, description_long) in cursor.fetchall():
+            bot.send_message(messagw.chat.id,
+                text=f"ID: {course_id}, Название: {course_name}, Дата начала: {start_date}\nКраткое описание: {description_short},\nПолное описание: {description_long}")
 
 
 def user_name(message):
@@ -84,6 +146,7 @@ def user_name(message):
 
 
 def email_number_tg(message):
+    global email_number
     tg_id = message.from_user.username
     email_number = message.text.strip()
     bot.send_message(message.chat.id, 'Пользователь зарегистрирован (или успешно зашёл в свой аккаунт)')
@@ -136,7 +199,7 @@ def notification_func(students_list: list):
 
 @bot.message_handler(commands=['send'])
 def send_handler(message):
-    if message.chat.id == 'hylo_x2':
+    if an in admin_list:
         send_message_to_subscribers(message.text[6:])
     else:
         bot.send_message(message.chat.id, 'У вас нет прав на выполнение этой команды.')
