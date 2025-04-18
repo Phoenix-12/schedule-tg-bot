@@ -91,7 +91,7 @@ def func(message):
     elif message.text == 'Информация по курсам':
         cursor.execute("SELECT * FROM courses")
         for (course_id, course_name, start_date, description_short, description_long) in cursor.fetchall():
-            bot.send_message(messagw.chat.id, text=f"ID: {course_id}, Название: {course_name}, Дата начала: {start_date}\nКраткое описание: {description_short},\nПолное описание: {description_long}")
+            bot.send_message(message.chat.id, text=f"ID: {course_id}, Название: {course_name}, Дата начала: {start_date}\nКраткое описание: {description_short},\nПолное описание: {description_long}")
 
     elif message.text == 'Войти':
         bot.send_message(message.chat.id, 'Инициализация протокола входа. Введи своё имя:')
@@ -135,7 +135,7 @@ def func(message):
     elif message.text == 'Информация по курсам':
         cursor.execute("SELECT * FROM courses")
         for (course_id, course_name, start_date, description_short, description_long) in cursor.fetchall():
-            bot.send_message(messagw.chat.id,
+            bot.send_message(message.chat.id,
                 text=f"ID: {course_id}, Название: {course_name}, Дата начала: {start_date}\nКраткое описание: {description_short},\nПолное описание: {description_long}")
 
 
