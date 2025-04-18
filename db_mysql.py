@@ -99,7 +99,7 @@ connection = mysql.connector.connect(
     password='sasyn2008')
 cursor = connection.cursor()
 database_initialization()
-
+"""
 while True:
     print("1) Добавить пользователя")
     print("2) Добавить курс")
@@ -125,3 +125,4 @@ while True:
 
 cursor.close()
 connection.close()
+"""

@@ -1,10 +1,11 @@
-import time
 from datetime import datetime, timedelta
 import telebot
 from telebot import types
 import sqlite3
 import db_mysql
 import config
+from apscheduler.schedulers.background import BackgroundScheduler
+from DB import DB
 
 bot = telebot.TeleBot(config.api)
 conn = sqlite3.connect('users.db')
@@ -180,9 +181,10 @@ def send_notification(student_name, days_until_lesson):
     print(f"Напоминание для {student_name}: до начала урока осталось {days_until_lesson} дней.")
 
 
-def notification_func(students_list: list):
+def notification_func():
+    students = DB().get_all_users_for_notifications()
     today = datetime.today().date()
-    for student in students_list:
+    for student in students:
         start_date = datetime.strptime(student["start_date"], "%Y-%m-%d").date()
 
         weeks_passed = (today - start_date).days // 7
@@ -191,10 +193,6 @@ def notification_func(students_list: list):
 
         if delta == 3:
             send_notification(student["name"], delta)
-
-    while True:
-        notification_func(students)
-        time.sleep(86400)
 
 
 @bot.message_handler(commands=['send'])
@@ -207,4 +205,7 @@ def send_handler(message):
 
 cursor.close()
 conn.close()
+scheduler = BackgroundScheduler()
+scheduler.add_job(notification_func, 'interval', days=1)
+scheduler.start()
 bot.polling(none_stop=True)

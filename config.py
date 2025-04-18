@@ -1,3 +1,3 @@
-api = "'7959873800:AAH2pgOXXef0g6cm2fXLz54c38KZ-3TXb7E'"
+api = "7959873800:AAFNmVdZ3qHLH0-_W5j3Q3riAOx_sX5ikgw"
 
 admin_list = [""]

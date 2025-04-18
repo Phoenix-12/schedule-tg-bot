@@ -46,3 +46,22 @@ class DB:
         for user in users:
             print(user)
         return users
+
+    def get_all_users_for_notifications(self):
+        self.cursor.execute("""
+            SELECT u.name, u.tg_id, c.start_date
+            FROM user_courses uc
+            JOIN users u ON uc.user_id = u.user_id
+            JOIN courses c ON uc.course_id = c.course_id
+        """)
+        results = self.cursor.fetchall()
+
+        users = []
+        for row in results:
+            users.append({
+                "name": row[0],
+                "tg_id": row[1],
+                "start_date": row[2].strftime("%Y-%m-%d")
+            })
+
+        return users
